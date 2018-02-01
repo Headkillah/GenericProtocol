@@ -5,8 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using ZeroFormatter;
 
-namespace GenericProtocol.Implementation {
-    public class ProtoClient<T> : IClient<T> {
+namespace GenericProtocol.Implementation
+{
+    public class ProtoClient<T> : IClient<T>
+    {
         #region Properties
 
         public int ReceiveBufferSize { get; set; } = Constants.ReceiveBufferSize;
@@ -16,6 +18,7 @@ namespace GenericProtocol.Implementation {
         public ConnectionStatus ConnectionStatus { get; set; } // Status of connection
 
         public event ReceivedHandler<T> ReceivedMessage;
+
         public event ConnectionContextHandler ConnectionLost;
 
         public bool AutoReconnect { get; set; }
@@ -23,7 +26,7 @@ namespace GenericProtocol.Implementation {
         private IPEndPoint EndPoint { get; } // Server (remote) EndPoint
         private Socket Socket { get; } // Actual underlying socket
 
-        #endregion
+        #endregion Properties
 
         #region ctor
 
@@ -35,7 +38,8 @@ namespace GenericProtocol.Implementation {
         /// <param name="address">The server's <see cref="IPAddress" /> to connect to</param>
         /// <param name="port">The server's Port to connect to</param>
         public ProtoClient(IPAddress address, int port) :
-            this(address, port, AddressFamily.InterNetwork, SocketType.Stream) { }
+            this(address, port, AddressFamily.InterNetwork, SocketType.Stream)
+        { }
 
         /// <summary>
         ///     Create a new instance of the <see cref="ProtoClient{T}" />
@@ -51,51 +55,62 @@ namespace GenericProtocol.Implementation {
         /// </param>
         /// <param name="address">The server's <see cref="IPAddress" /> to connect to</param>
         /// <param name="port">The server's Port to connect to</param>
-        public ProtoClient(IPAddress address, int port, AddressFamily family, SocketType type) {
+        public ProtoClient(IPAddress address, int port, AddressFamily family, SocketType type)
+        {
             EndPoint = new IPEndPoint(address, port);
             Socket = new Socket(family, type, ProtocolType.Tcp);
         }
 
-        #endregion
+        #endregion ctor
 
         #region Functions
 
-        public async Task Connect(bool seperateThread = false) {
+        public async Task Connect(bool seperateThread = false)
+        {
             if (ConnectionStatus == ConnectionStatus.Connected) throw new GenericProtocolException("Already connected!");
 
             await Socket.ConnectAsync(EndPoint).ConfigureAwait(false);
             ConnectionStatus = ConnectionStatus.Connected;
 
-            if (seperateThread) {
+            if (seperateThread)
+            {
                 // Launch on a new Thread
                 new Thread(StartReceiving).Start();
                 new Thread(KeepAlive).Start();
-            } else {
+            }
+            else
+            {
                 // Use Tasks
                 StartReceiving();
                 KeepAlive();
             }
         }
 
-        public void Disconnect() {
-            try {
+        public void Disconnect()
+        {
+            try
+            {
                 Socket?.Disconnect(false);
                 ConnectionStatus = ConnectionStatus.Disconnected;
                 Socket?.Close();
                 Socket?.Dispose();
-            } catch (ObjectDisposedException) {
+            }
+            catch (ObjectDisposedException)
+            {
                 // already stopped
             }
         }
 
-        public async Task Send(T message) {
+        public async Task Send(T message)
+        {
             if (message.Equals(default(T))) throw new ArgumentNullException(nameof(message));
 
             bool alive = Socket.Ping();
             if (!alive)
                 throw new TransferException($"The Socket to {EndPoint} is not responding!");
 
-            try {
+            try
+            {
                 // build byte[] out of message (serialize with ZeroFormatter)
                 byte[] bytes = ZeroFormatterSerializer.Serialize(message);
                 ArraySegment<byte> segment = new ArraySegment<byte>(bytes);
@@ -105,7 +120,8 @@ namespace GenericProtocol.Implementation {
 
                 //TODO: Decide whether to catch errors in buffer-loop and continue once fixed or cancel whole send?
                 int written = 0;
-                while (written < size) {
+                while (written < size)
+                {
                     int send = size - written; // current buffer size
                     if (send > SendBufferSize)
                         send = SendBufferSize; // max size
@@ -117,30 +133,39 @@ namespace GenericProtocol.Implementation {
                 if (written < 1)
                     throw new TransferException($"{written} bytes were sent! " +
                                                 "Null bytes could mean a connection shutdown.");
-            } catch (SocketException) {
+            }
+            catch (SocketException)
+            {
                 ConnectionLost?.Invoke(EndPoint);
                 // On any error - cancel whole buffered writing
-                if (AutoReconnect) {
+                if (AutoReconnect)
+                {
                     await Reconnect().ConfigureAwait(false); // Try reconnecting and re-send everything once reconnected
-                } else {
+                }
+                else
+                {
                     throw; // Throw if we're not trying to reconnect
                 }
             }
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             Disconnect();
         }
 
-        #endregion
+        #endregion Functions
 
         #region Privates
 
         // Endless Start reading loop
-        private void StartReceiving() {
+        private void StartReceiving()
+        {
             // Loop theoretically infinetly
-            while (true) {
-                try {
+            while (true)
+            {
+                try
+                {
                     // Read the leading "byte"
                     long size = LeadingByteProcessor.ReadLeading(Socket).GetAwaiter().GetResult();
 
@@ -149,9 +174,11 @@ namespace GenericProtocol.Implementation {
                     //TODO: Decide whether to catch errors in buffer-loop and continue once fixed or cancel whole receive?
                     // read until all data is read
                     int read = 0;
-                    while (read < size) {
+                    while (read < size)
+                    {
                         long receive = size - read; // current buffer size
-                        if (receive > ReceiveBufferSize) {
+                        if (receive > ReceiveBufferSize)
+                        {
                             receive = ReceiveBufferSize; // max size
                         }
 
@@ -163,11 +190,16 @@ namespace GenericProtocol.Implementation {
                     var message = ZeroFormatterSerializer.Deserialize<T>(segment.Array);
 
                     ReceivedMessage?.Invoke(EndPoint, message); // call event
-                } catch (ObjectDisposedException) {
+                }
+                catch (ObjectDisposedException)
+                {
                     return; // Socket was closed & disposed -> exit
-                } catch (SocketException) {
+                }
+                catch (SocketException)
+                {
                     ConnectionLost?.Invoke(EndPoint);
-                    if (!AutoReconnect) {
+                    if (!AutoReconnect)
+                    {
                         Reconnect().GetAwaiter().GetResult(); // Try reconnecting on an error, then continue receiving
                     }
                 }
@@ -176,18 +208,23 @@ namespace GenericProtocol.Implementation {
         }
 
         // Reconnect the Socket connection
-        private async Task Reconnect() {
+        private async Task Reconnect()
+        {
             // Don't reconnect if we're already reconnecting somewhere else
             if (ConnectionStatus == ConnectionStatus.Connecting) return;
 
             ConnectionStatus = ConnectionStatus.Connecting; // Connecting...
-            while (true) {
-                try {
+            while (true)
+            {
+                try
+                {
                     Socket.Disconnect(true); // Disconnect and reserve socket
                     await Socket.ConnectAsync(EndPoint).ConfigureAwait(false); // Connect to Server
                     ConnectionStatus = ConnectionStatus.Connected;
                     return;
-                } catch (SocketException) {
+                }
+                catch (SocketException)
+                {
                     // could not connect
                 }
                 await Task.Delay(ReconnectInterval).ConfigureAwait(false); // Try to reconnect all x milliseconds
@@ -195,8 +232,10 @@ namespace GenericProtocol.Implementation {
         }
 
         // Keep server connection alive by pinging
-        private async void KeepAlive() {
-            while (true) {
+        private async void KeepAlive()
+        {
+            while (true)
+            {
                 await Task.Delay(PingDelay).ConfigureAwait(false);
 
                 bool isAlive = Socket.Ping(); // Try to ping the server
@@ -205,15 +244,18 @@ namespace GenericProtocol.Implementation {
                 // ---- Socket is NOT alive: ---- //
                 ConnectionLost?.Invoke(EndPoint);
                 // Client does not respond, try reconnecting, or disconnect & exit
-                if (AutoReconnect) {
+                if (AutoReconnect)
+                {
                     await Reconnect().ConfigureAwait(false); // Wait for reconnect
-                } else {
+                }
+                else
+                {
                     Disconnect(); // Stop and exit
                     return;
                 }
             }
         }
 
-        #endregion
+        #endregion Privates
     }
 }

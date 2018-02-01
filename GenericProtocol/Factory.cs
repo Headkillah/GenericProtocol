@@ -5,13 +5,16 @@ using GenericProtocol.Implementation;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace GenericProtocol {
+namespace GenericProtocol
+{
     /// <summary>
     ///     The <see cref="IClient{T}"/> and <see cref="IServer{T}"/>
     ///     start factory
     /// </summary>
-    public static class Factory {
+    public static class Factory
+    {
         #region Client
+
         /// <summary>
         ///     Start and Connect a new <see cref="IClient{T}"/>
         /// </summary>
@@ -19,7 +22,8 @@ namespace GenericProtocol {
         /// <param name="address">The <see cref="IServer{T}"/>'s <see cref="IPAddress"/></param>
         /// <param name="port">The <see cref="IServer{T}"/>'s Port</param>
         /// <returns>A connected <see cref="IClient{T}"/> instance</returns>
-        public static async Task<IClient<T>> StartNewClient<T>(string address, int port) {
+        public static async Task<IClient<T>> StartNewClient<T>(string address, int port)
+        {
             ProtoClient<T> client = new ProtoClient<T>(IPAddress.Parse(address), port);
             await client.Connect();
             return client;
@@ -31,10 +35,11 @@ namespace GenericProtocol {
         /// <typeparam name="T">The Type of object to send over the network</typeparam>
         /// <param name="address">The <see cref="IServer{T}"/>'s <see cref="IPAddress"/></param>
         /// <param name="port">The <see cref="IServer{T}"/>'s Port</param>
-        /// <param name="newThread">Whether to use a seperate 
+        /// <param name="newThread">Whether to use a seperate
         /// <see cref="System.Threading.Thread"/> for all data transfers</param>
         /// <returns>A connected <see cref="IClient{T}"/> instance</returns>
-        public static async Task<IClient<T>> StartNewClient<T>(string address, int port, bool newThread) {
+        public static async Task<IClient<T>> StartNewClient<T>(string address, int port, bool newThread)
+        {
             ProtoClient<T> client = new ProtoClient<T>(IPAddress.Parse(address), port);
             await client.Connect(newThread);
             return client;
@@ -61,7 +66,7 @@ namespace GenericProtocol {
         /// </summary>
         /// <param name="address">The <see cref="IServer{T}"/>'s <see cref="IPAddress"/></param>
         /// <param name="port">The <see cref="IServer{T}"/>'s Port</param>
-        /// <param name="newThread">Whether to use a seperate 
+        /// <param name="newThread">Whether to use a seperate
         /// <see cref="System.Threading.Thread"/> for all data transfers</param>
         /// <returns>A connected <see cref="IClient{T}"/> instance</returns>
         public static async Task<IClient<byte[]>> StartNewBinaryDownlink(string address, int port, bool newThread) {
@@ -70,10 +75,13 @@ namespace GenericProtocol {
             return client;
         }
 #endif
-        #endregion
+
+        #endregion Client
 
         #region Server
+
         //TODO: Server
-        #endregion
+
+        #endregion Server
     }
 }

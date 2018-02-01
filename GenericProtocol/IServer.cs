@@ -1,11 +1,11 @@
-﻿using System;
+﻿using GenericProtocol.Implementation;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using GenericProtocol.Implementation;
-using ZeroFormatter;
 
-namespace GenericProtocol {
+namespace GenericProtocol
+{
     /// <summary>
     ///     A <see cref="GenericProtocol" /> Server.
     ///     <para />
@@ -15,25 +15,30 @@ namespace GenericProtocol {
     ///     The Type of the Messages to use
     ///     (has to be ZeroFormatter marked, see: <see href="https://github.com/neuecc/ZeroFormatter" />)
     /// </typeparam>
-    public interface IServer<T> : IDisposable {
+    public interface IServer<T> : IDisposable
+    {
         /// <summary>
         ///     Delay between Client pings in milliseconds
         /// </summary>
         int PingDelay { get; set; }
+
         /// <summary>
-        ///     The size of the receive buffers (should be equal or 
+        ///     The size of the receive buffers (should be equal or
         ///     less than bandwidth)
         /// </summary>
         int ReceiveBufferSize { get; set; }
+
         /// <summary>
-        ///     The size of the send buffers (should be equal or 
+        ///     The size of the send buffers (should be equal or
         ///     less than bandwidth)
         /// </summary>
         int SendBufferSize { get; set; }
+
         /// <summary>
         ///     The maximum clients to queue on simultanious connection attempts
         /// </summary>
         int MaxConnectionsBacklog { get; set; }
+
         /// <summary>
         ///     An list of all the connected clients' <see cref="IPEndPoint"/>s
         /// </summary>
@@ -43,10 +48,12 @@ namespace GenericProtocol {
         ///     Event for just connected clients
         /// </summary>
         event ConnectionContextHandler ClientConnected;
+
         /// <summary>
         ///     Event for just disconnected clients
         /// </summary>
         event ConnectionContextHandler ClientDisconnected;
+
         /// <summary>
         ///     Event for received messages
         /// </summary>

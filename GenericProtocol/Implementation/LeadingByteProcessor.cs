@@ -2,8 +2,10 @@
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace GenericProtocol.Implementation {
-    internal static class LeadingByteProcessor {
+namespace GenericProtocol.Implementation
+{
+    internal static class LeadingByteProcessor
+    {
         /// <summary>
         ///     Number of bytes to reserve for the byte size that's going to get sent/received
         /// </summary>
@@ -14,7 +16,8 @@ namespace GenericProtocol.Implementation {
         /// </summary>
         /// <param name="socket">The socket to read the leading bytes from</param>
         /// <returns>Returns an <c>await</c>able <see cref="Task"/></returns>
-        internal static async Task<int> ReadLeading(Socket socket) {
+        internal static async Task<int> ReadLeading(Socket socket)
+        {
             byte[] bytes = new byte[LeadingByteSize];
             ArraySegment<byte> segment = new ArraySegment<byte>(bytes);
             // read leading bytes
@@ -35,7 +38,8 @@ namespace GenericProtocol.Implementation {
         /// <param name="socket">The socket to read the leading bytes from</param>
         /// <param name="size">The size of the following message (= leading byte's value)</param>
         /// <returns>Returns an <c>await</c>able <see cref="Task"/></returns>
-        internal static async Task SendLeading(Socket socket, int size) {
+        internal static async Task SendLeading(Socket socket, int size)
+        {
             // build byte[] out of size
             byte[] bytes = BitConverter.GetBytes(size);
             ArraySegment<byte> segment = new ArraySegment<byte>(bytes);

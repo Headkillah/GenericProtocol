@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using GenericProtocol.Implementation;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using GenericProtocol.Implementation;
 
-namespace GenericProtocol {
+namespace GenericProtocol
+{
     /// <summary>
     ///     A protocol to discover other GenericProtocol
     ///     <see cref="IClient{T}"/>s in your network
     ///     via a UDP Broadcast
     /// </summary>
-    public interface INetworkDiscovery {
+    public interface INetworkDiscovery
+    {
         /// <summary>
         ///     Discover all <see cref="IClient{T}"/>s in the
         ///     given network by sending a UDP broadcast message
@@ -38,20 +40,22 @@ namespace GenericProtocol {
         void Host(IPAddress networkIp, int port = Constants.DiscoveryPort);
     }
 
-
     /// <summary>
     ///     The Result of a <see cref="INetworkDiscovery.Discover"/> call
     /// </summary>
-    public interface IDiscoveryResult {
+    public interface IDiscoveryResult
+    {
         /// <summary>
         ///     True if the <see cref="INetworkDiscovery"/>
         ///     found one or more <see cref="IClient{T}"/>s in the network
         /// </summary>
         bool Any { get; }
+
         /// <summary>
         ///     The count of the hosts that responded in the network
         /// </summary>
         int HostsCount { get; }
+
         /// <summary>
         ///     An <see cref="IEnumerable{T}"/> of <see cref="IPEndPoint"/>s
         ///     representing all Hosts that responded to a
