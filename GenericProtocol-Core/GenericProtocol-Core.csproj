@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.0;netstandard2.0</TargetFrameworks>
+    <PackageId>GenericProtocol-Core</PackageId>
+    <Version>1.0.35</Version>
+    <Authors>mrousavy, cbarosch</Authors>
+    <Company>mrousavy</Company>
+    <Product>Generic Protocol</Product>
+    <Description>A fast TCP event based buffered server/client protocol for transferring data over the network in .NET Core/Classic</Description>
+    <PackageLicenseUrl>https://github.com/mrousavy/GenericProtocol/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/mrousavy/GenericProtocol</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mrousavy/GenericProtocol</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageTags>tcp socket protocol client server</PackageTags>
+    <AssemblyVersion>1.0.3.5</AssemblyVersion>
+    <FileVersion>1.0.3.5</FileVersion>
+    <PackageReleaseNotes>Bugfixes, Binary Down/Up-Links, Network Discovery</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ZeroFormatter" Version="1.6.4" />
+  </ItemGroup>
+
+</Project>
